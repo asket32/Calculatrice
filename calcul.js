@@ -1,29 +1,72 @@
-const buttonsE1 = document.querySelectorAll("button");
+const buttons = document.querySelectorAll("button");
+const inputField = document.getElementById("resultat");
 
-const inputFieldE1 = document.getElementById("resultat");
-
-for (let i = 0; i < buttonsE1.length; i++) {
-    buttonsE1[i].addEventListener("click", () => {
-        const buttonValue = buttonsE1[i].textContent;
-        if (buttonValue === "C") {
-            clearResult();
-        } else if (buttonValue === "=") {
-            calculateResult();
-        } else {
-            appendValue(buttonValue);
-        }
+buttons.forEach(button => {
+    button.addEventListener("click", () => {
+        const value = button.textContent.trim();
+        handleInput(value);
     });
+});
+
+// Gestion principale
+function handleInput(value) {
+    if (value === "C") {
+        clearResult();
+    } 
+    else if (value === "DEL") {
+        deleteLast();
+    } 
+    else if (value === "=") {
+        calculateResult();
+    } 
+    else {
+        appendValue(value);
+    }
 }
 
+// Effacer tout
 function clearResult() {
-    inputFieldE1.value = "";
+    inputField.value = "";
 }
 
+// Supprimer dernier caractère
+function deleteLast() {
+    inputField.value = inputField.value.slice(0, -1);
+}
+
+// Ajouter valeur (avec protection opérateurs)
+function appendValue(value) {
+    const operators = ["+", "-", "*", "/"];
+    const lastChar = inputField.value.slice(-1);
+
+    // Empêche deux opérateurs consécutifs
+    if (operators.includes(value) && operators.includes(lastChar)) {
+        return;
+    }
+
+    inputField.value += value;
+}
+
+// Calcul sécurisé
 function calculateResult() {
-    inputFieldE1.value = eval(inputFieldE1.value);
-}
+    try {
+        if (inputField.value === "") return;
 
-function appendValue(buttonValue) {
-    inputFieldE1.value += buttonValue;
-    // inputFieldE1.value = inputFieldE1.value + buttonValue;
+        // Remplace ÷ et × si tu les utilises en bouton
+        let expression = inputField.value
+            .replace(/×/g, "*")
+            .replace(/÷/g, "/");
+
+        // Validation simple (autorise seulement chiffres et opérateurs)
+        if (!/^[0-9+\-*/.() ]+$/.test(expression)) {
+            throw new Error("Expression invalide");
+        }
+
+        inputField.value = new Function("return " + expression)();
+    } catch (error) {
+        inputField.value = "Erreur";
+        setTimeout(() => {
+            inputField.value = "";
+        }, 1500);
+    }
 }
