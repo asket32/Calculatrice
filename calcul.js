@@ -8,12 +8,13 @@ buttons.forEach(button => {
     });
 });
 
-// Gestion principale
+
 function handleInput(value) {
-    if (value === "C") {
-        clearResult();
+
+    if (value === "AC") {
+        allClear();
     } 
-    else if (value === "DEL") {
+    else if (value === "C") {
         deleteLast();
     } 
     else if (value === "=") {
@@ -24,22 +25,18 @@ function handleInput(value) {
     }
 }
 
-// Effacer tout
-function clearResult() {
+function allClear() {
     inputField.value = "";
 }
 
-// Supprimer dernier caractère
 function deleteLast() {
     inputField.value = inputField.value.slice(0, -1);
 }
 
-// Ajouter valeur (avec protection opérateurs)
 function appendValue(value) {
     const operators = ["+", "-", "*", "/"];
     const lastChar = inputField.value.slice(-1);
 
-    // Empêche deux opérateurs consécutifs
     if (operators.includes(value) && operators.includes(lastChar)) {
         return;
     }
@@ -47,23 +44,21 @@ function appendValue(value) {
     inputField.value += value;
 }
 
-// Calcul sécurisé
 function calculateResult() {
     try {
         if (inputField.value === "") return;
 
-        // Remplace ÷ et × si tu les utilises en bouton
         let expression = inputField.value
             .replace(/×/g, "*")
             .replace(/÷/g, "/");
 
-        // Validation simple (autorise seulement chiffres et opérateurs)
         if (!/^[0-9+\-*/.() ]+$/.test(expression)) {
             throw new Error("Expression invalide");
         }
 
         inputField.value = new Function("return " + expression)();
-    } catch (error) {
+    } 
+    catch (error) {
         inputField.value = "Erreur";
         setTimeout(() => {
             inputField.value = "";
